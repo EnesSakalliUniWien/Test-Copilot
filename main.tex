@@ -1,0 +1,165 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{hyperref}
+
+\title{K-Nearest Neighbors Algorithm: A Set Theory Approach}
+\author{Author Name}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document presents the K-Nearest Neighbors (KNN) algorithm through the lens of set theory. By formalizing the algorithm using mathematical set notation, we provide a rigorous foundation for understanding this popular machine learning technique. We explore how set operations and metric spaces naturally lead to the classification and regression capabilities of KNN.
+\end{abstract}
+
+\section{Introduction}
+The K-Nearest Neighbors algorithm is a non-parametric method used for classification and regression tasks in machine learning. Unlike many algorithms that build explicit models during training, KNN is an instance-based learning algorithm that makes predictions based on the proximity of data points in the feature space.
+
+\section{Set Theory Preliminaries}
+
+\subsection{Sets and Metric Spaces}
+Let $\mathcal{X}$ represent our feature space, which is a set equipped with a distance metric $d: \mathcal{X} \times \mathcal{X} \rightarrow \mathbb{R}_{\geq 0}$ satisfying:
+\begin{enumerate}
+    \item Non-negativity: $d(x,y) \geq 0$ for all $x,y \in \mathcal{X}$
+    \item Identity of indiscernibles: $d(x,y) = 0$ if and only if $x = y$
+    \item Symmetry: $d(x,y) = d(y,x)$ for all $x,y \in \mathcal{X}$
+    \item Triangle inequality: $d(x,z) \leq d(x,y) + d(y,z)$ for all $x,y,z \in \mathcal{X}$
+\end{enumerate}
+
+Common distance metrics include:
+\begin{itemize}
+    \item Euclidean distance: $d(x,y) = \sqrt{\sum_{i=1}^n (x_i - y_i)^2}$
+    \item Manhattan distance: $d(x,y) = \sum_{i=1}^n |x_i - y_i|$
+    \item Minkowski distance: $d(x,y) = \left(\sum_{i=1}^n |x_i - y_i|^p\right)^{1/p}$
+\end{itemize}
+
+\subsection{Neighborhoods and Proximity}
+For any point $x \in \mathcal{X}$ and radius $r > 0$, we define an open ball (neighborhood):
+\begin{equation}
+B(x, r) = \{y \in \mathcal{X} : d(x, y) < r\}
+\end{equation}
+
+This represents all points within distance $r$ of $x$.
+
+\section{KNN Formulation Using Set Theory}
+
+\subsection{Training Data as a Set}
+Let $\mathcal{D} = \{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\}$ represent our training dataset, where each $x_i \in \mathcal{X}$ is a feature vector and $y_i \in \mathcal{Y}$ is its corresponding label.
+
+The set $\mathcal{X}_{\mathcal{D}} = \{x_1, x_2, \ldots, x_n\}$ represents all feature vectors in our training data.
+
+\subsection{K-Nearest Neighbors Function}
+For any query point $q \in \mathcal{X}$, we define the function $\text{NN}_k(q, \mathcal{D})$ which returns the set of $k$ closest training points to $q$:
+
+\begin{equation}
+\text{NN}_k(q, \mathcal{D}) = \{x_i \in \mathcal{X}_{\mathcal{D}} : |\{x_j \in \mathcal{X}_{\mathcal{D}} \setminus \{x_i\} : d(q, x_j) < d(q, x_i)\}| < k\}
+\end{equation}
+
+This represents the set of $k$ elements of $\mathcal{X}_{\mathcal{D}}$ that have the smallest distances to $q$. In case of ties, we can break them arbitrarily or include all tied points.
+
+\subsection{Classification with KNN}
+For classification tasks, let $\mathcal{Y} = \{c_1, c_2, \ldots, c_m\}$ be the set of possible class labels.
+
+The predicted class for query point $q$ is determined by taking the most frequent class in the set of nearest neighbors:
+
+\begin{equation}
+\hat{y}(q) = \arg\max_{c \in \mathcal{Y}} |\{(x, y) \in \mathcal{D} : x \in \text{NN}_k(q, \mathcal{D}) \land y = c\}|
+\end{equation}
+
+\subsection{Regression with KNN}
+For regression tasks, $\mathcal{Y} = \mathbb{R}$ (or some subset), and the predicted value is typically the average of the $k$ nearest neighbors:
+
+\begin{equation}
+\hat{y}(q) = \frac{1}{k} \sum_{x \in \text{NN}_k(q, \mathcal{D})} y_x
+\end{equation}
+where $y_x$ represents the label associated with feature vector $x$ in the training set.
+
+\section{Weighted KNN Using Set Theory}
+We can extend our formulation to incorporate distance-based weighting. Let $w: \mathbb{R}_{\geq 0} \rightarrow \mathbb{R}_{\geq 0}$ be a weight function that assigns higher values to smaller distances.
+
+\subsection{Weighted Classification}
+For classification with weights:
+
+\begin{equation}
+\hat{y}(q) = \arg\max_{c \in \mathcal{Y}} \sum_{\substack{(x, y) \in \mathcal{D} \\ x \in \text{NN}_k(q, \mathcal{D}) \\ y = c}} w(d(q, x))
+\end{equation}
+
+\subsection{Weighted Regression}
+For regression with weights:
+
+\begin{equation}
+\hat{y}(q) = \frac{\sum_{x \in \text{NN}_k(q, \mathcal{D})} w(d(q, x)) \cdot y_x}{\sum_{x \in \text{NN}_k(q, \mathcal{D})} w(d(q, x))}
+\end{equation}
+
+\section{Theoretical Properties from Set Theory Perspective}
+
+\subsection{Voronoi Diagrams}
+The decision boundaries in 1-NN can be represented as a Voronoi diagram, where the space is partitioned into regions based on proximity to training points:
+
+\begin{equation}
+V_i = \{x \in \mathcal{X} : \forall j \neq i, d(x, x_i) \leq d(x, x_j)\}
+\end{equation}
+
+\subsection{Convergence Properties}
+As the number of training samples $n \rightarrow \infty$ and $k \rightarrow \infty$ such that $k/n \rightarrow 0$, the KNN classifier converges to the Bayes optimal classifier under certain conditions.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\draw[->] (-0.5,0) -- (10,0) node[right] {$x_1$};
+\draw[->] (0,-0.5) -- (0,8) node[above] {$x_2$};
+\filldraw[black] (2,3) circle (3pt) node[anchor=west]{$c_1$};
+\filldraw[black] (3,5) circle (3pt) node[anchor=west]{$c_1$};
+\filldraw[black] (7,6) circle (3pt) node[anchor=west]{$c_2$};
+\filldraw[black] (8,2) circle (3pt) node[anchor=west]{$c_2$};
+\filldraw[red] (5,4) circle (3pt) node[anchor=west]{$q$};
+\draw[dashed] (5,4) -- (2,3);
+\draw[dashed] (5,4) -- (3,5);
+\draw[dashed] (5,4) -- (7,6);
+\end{tikzpicture}
+\caption{A simple 2D example of KNN with $k=3$. The query point $q$ is classified based on majority class of its 3 nearest neighbors.}
+\label{fig:knn_example}
+\end{figure}
+
+\section{Algorithm Implementation}
+// Added this comment to clarify the algorithm's usage.
+\begin{algorithm}
+\caption{K-Nearest Neighbors Classification}
+\begin{algorithmic}[1]
+\State \textbf{Input:} Training set $\mathcal{D} = \{(x_1, y_1), \ldots, (x_n, y_n)\}$, query point $q$, number of neighbors $k$
+\State \textbf{Output:} Predicted class label $\hat{y}$
+\For{$i \in \{1, 2, \ldots, n\}$}
+    \State Compute distance $d_i = d(q, x_i)$
+\EndFor
+\State Let $I$ be the indices of the $k$ smallest distances $\{d_i\}_{i=1}^n$
+\State $C = \{y_i : i \in I\}$ \Comment{Class labels of $k$ nearest neighbors}
+\State $\hat{y} = \arg\max_{c \in \mathcal{Y}} |\{y \in C : y = c\}|$ \Comment{Most frequent class}
+\State \textbf{return} $\hat{y}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Conclusion}
+This document has presented the K-Nearest Neighbors algorithm through the lens of set theory, providing a formal mathematical foundation for understanding this fundamental machine learning technique. By expressing KNN in terms of sets, metrics, and neighborhoods, we gain deeper insights into its properties and behavior.
+
+The set-theoretic approach highlights the non-parametric nature of KNN and its reliance on the local structure of the data, making it particularly effective in problems where decision boundaries are complex and not easily modeled by parametric methods.
+
+\section{References}
+\begin{thebibliography}{9}
+\bibitem{cover1967nearest}
+Cover, T. M., \& Hart, P. E. (1967). Nearest neighbor pattern classification. IEEE transactions on information theory, 13(1), 21-27.
+
+\bibitem{fix1989discriminatory}
+Fix, E., \& Hodges Jr, J. L. (1989). Discriminatory analysis. Nonparametric discrimination: Consistency properties. International Statistical Review/Revue Internationale de Statistique, 57(3), 238-247.
+
+\bibitem{hastie2009elements}
+Hastie, T., Tibshirani, R., \& Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Springer Science \& Business Media.
+\end{thebibliography}
+
+\end{document}
